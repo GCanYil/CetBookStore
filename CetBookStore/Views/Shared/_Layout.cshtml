@@ -27,13 +27,10 @@
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
                         </li>
 
+                        @await Component.InvokeAsync("CategoryMenu")
+                        
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Categories" asp-action="Details" asp-route-id="1">Computers</a>
-                        </li>
-
-
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Categories" asp-action="Details" asp-route-id="2">Novels</a>
+                            <a class="nav-link text-dark" asp-controller="Orders" asp-action="Index">My Orders</a>
                         </li>
                     </ul>
                     <partial name="_LoginPartial" />

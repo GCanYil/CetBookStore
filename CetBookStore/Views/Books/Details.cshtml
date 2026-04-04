@@ -79,7 +79,33 @@
     </dl>
 </div>
 
-
+<div class="card mb-4 shadow-sm">
+    <div class="card-body">
+        @if (User.Identity.IsAuthenticated)
+        {
+            <form asp-controller="Cart" asp-action="AddToCart" method="post" class="row g-3 align-items-center">
+                <input type="hidden" name="bookId" value="@Model.Id" />
+                <div class="col-auto">
+                    <label class="col-form-label">Quantity:</label>
+                </div>
+                <div class="col-auto">
+                    <input type="number" name="quantity" value="1" min="1" class="form-control" style="width: 80px;" />
+                </div>
+                <div class="col-auto">
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-cart-plus"></i> Add to Cart
+                    </button>
+                </div>
+            </form>
+        }
+        else
+        {
+            <div class="alert alert-warning mb-0">
+                Please <a asp-area="Identity" asp-page="/Account/Login">login</a> to add this book to your cart.
+            </div>
+        }
+    </div>
+</div>
 
 
 <div class="row d-flex justify-content-center">

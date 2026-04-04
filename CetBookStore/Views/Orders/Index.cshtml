@@ -1,0 +1,21 @@
+@model IEnumerable<CetBookStore.Models.Order>
+
+<h2>My Orders</h2>
+
+@foreach (var order in Model)
+{
+    <div class="card mb-3">
+        <div class="card-header bg-light">
+            <strong>Order ID: #@order.Id</strong> | Date: @order.OrderDate.ToShortDateString() 
+            <span class="float-end">Total: @order.TotalPrice.ToString("C2")</span>
+        </div>
+        <div class="card-body">
+            <ul>
+                @foreach (var item in order.OrderItems)
+                {
+                    <li>@item.BookTitle - @item.Quantity x @item.Price.ToString("C2")</li>
+                }
+            </ul>
+        </div>
+    </div>
+}
