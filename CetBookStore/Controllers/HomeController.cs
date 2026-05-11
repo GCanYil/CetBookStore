@@ -1,6 +1,8 @@
 using CetBookStore.Data;
 using CetBookStore.Models;
 using CetBookStore.ViewModels;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
@@ -8,16 +10,19 @@ using System.Threading.Tasks;
 
 namespace CetBookStore.Controllers
 {
+    [Authorize]
     public class HomeController : Controller
     {
         private readonly ApplicationDbContext context;
+        
 
         public HomeController(ApplicationDbContext context)
         {
             this.context = context;
+           
         }
 
-
+        [AllowAnonymous]
         public async Task<IActionResult> Index()
         {
 
@@ -36,8 +41,8 @@ namespace CetBookStore.Controllers
                 Author = b.Author,
                 Price = b.Price,
                 OldPrice = b.PreviousPrice,
-                IsInSale = b.IsInSale
-
+                IsInSale = b.IsInSale,
+                ImageUrl = b.ImageUrl
                 }).ToListAsync();
 
             homePageViewModel.NewArrivals = await context.Books
@@ -51,7 +56,8 @@ namespace CetBookStore.Controllers
                     Author = b.Author,
                     Price = b.Price,
                     OldPrice = b.PreviousPrice,
-                    IsInSale = b.IsInSale
+                    IsInSale = b.IsInSale,
+                    ImageUrl = b.ImageUrl
                 }).ToListAsync();
 
 
@@ -65,14 +71,17 @@ namespace CetBookStore.Controllers
                     Author = b.Author,
                     Price = b.Price,
                     OldPrice = b.PreviousPrice,
-                    IsInSale = b.IsInSale
+                    IsInSale = b.IsInSale,
+                    ImageUrl = b.ImageUrl
                 }).ToListAsync();
 
             return View(homePageViewModel);
         }
-
+        
+       
         public IActionResult Privacy()
         {
+          
             return View();
         }
 
