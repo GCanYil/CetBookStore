@@ -8,6 +8,9 @@ using Microsoft.EntityFrameworkCore;
 using CetBookStore.Data;
 using CetBookStore.Models;
 using Microsoft.AspNetCore.Authorization;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Processing;
+using System.IO;
 
 namespace CetBookStore.Controllers
 {
@@ -111,37 +114,54 @@ namespace CetBookStore.Controllers
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Description,Author,Publisher,PageCount,Price,IsInSale,PreviousPrice,PublicationDate,CreatedDate,CategoryId")] Book book)
+[ValidateAntiForgeryToken]
+public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Description,Author,Publisher,PageCount,Price,IsInSale,PreviousPrice,PublicationDate,CreatedDate,CategoryId,ImageUrl,ImageFile")] Book book)
+{
+    if (id != book.Id) return NotFound();
+
+    if (ModelState.IsValid)
+    {
+        try
         {
-            if (id != book.Id)
+            if (book.ImageFile != null)
             {
-                return NotFound();
+                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(book.ImageFile.FileName);
+                var savePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images", fileName);
+                
+                using (var image = Image.Load(book.ImageFile.OpenReadStream()))
+                {
+                    if (image.Width > 1024)
+                    {
+                        image.Mutate(x => x.Resize(1024, 0));
+                    }
+                    image.Save(savePath);
+                }
+                
+                if (!string.IsNullOrEmpty(book.ImageUrl))
+                {
+                    var oldPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images", book.ImageUrl);
+                    if (System.IO.File.Exists(oldPath))
+                    {
+                        System.IO.File.Delete(oldPath);
+                    }
+                }
+                
+                book.ImageUrl = fileName;
             }
 
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(book);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!BookExists(book.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name", book.CategoryId);
-            return View(book);
+            _context.Update(book);
+            await _context.SaveChangesAsync();
         }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!BookExists(book.Id)) return NotFound();
+            else throw;
+        }
+        return RedirectToAction(nameof(Index));
+    }
+    ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name", book.CategoryId);
+    return View(book);
+}
 
         // GET: Books/Delete/5
         public async Task<IActionResult> Delete(int? id)
